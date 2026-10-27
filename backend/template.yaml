@@ -1,0 +1,218 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  CloudTask - Serverless Task and Document Management Application
+  Built for Cybernetics Software Pvt. Ltd. Junior Software Developer Assessment.
+
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 512
+    Runtime: nodejs20.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        TASKS_TABLE: !Ref TasksTable
+        ATTACHMENTS_BUCKET: !Ref AttachmentsBucket
+        ALLOWED_ORIGIN: !Ref AllowedOrigin
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+
+Parameters:
+  AllowedOrigin:
+    Type: String
+    Default: '*'
+    Description: Allowed CORS Origin for frontend web app (e.g. https://main.dXXXXXXXXX.amplifyapp.com or *)
+
+Resources:
+  # =========================================================================
+  # HTTP API Gateway (v2) with CORS
+  # =========================================================================
+  CloudTaskHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref AllowedOrigin
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Requested-With
+          - Accept
+        MaxAge: 600
+
+  # =========================================================================
+  # DynamoDB Table: CloudTaskTasks
+  # =========================================================================
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: CloudTaskTasks
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: taskId
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: taskId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: StatusCreatedAtIndex
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      SSESpecification:
+        SSEEnabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+      Tags:
+        - Key: Project
+          Value: CloudTask
+        - Key: ManagedBy
+          Value: AWSSAM
+
+  # =========================================================================
+  # Private S3 Bucket for Attachments
+  # =========================================================================
+  AttachmentsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "cloudtask-attachments-${AWS::AccountId}-${AWS::Region}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - !Ref AllowedOrigin
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            AllowedHeaders:
+              - "*"
+            MaxAge: 3600
+      LifecycleConfiguration:
+        Rules:
+          - Id: AbortIncompleteMultipartUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+      Tags:
+        - Key: Project
+          Value: CloudTask
+
+  # =========================================================================
+  # Lambda Function: CloudTaskApiHandler
+  # =========================================================================
+  CloudTaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: dist/index.handler
+      Description: Lambda handler for CloudTask CRUD, presigned S3 URLs, and attachment validation
+      Policies:
+        # Least privilege DynamoDB policy for table and indexes
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+                - dynamodb:Scan
+                - dynamodb:Query
+              Resource:
+                - !GetAtt TasksTable.Arn
+                - !Sub "${TasksTable.Arn}/index/*"
+            # Least privilege S3 policy for bucket objects
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:DeleteObject
+                - s3:HeadObject
+              Resource:
+                - !Sub "${AttachmentsBucket.Arn}/*"
+      Events:
+        GetTasks:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CloudTaskHttpApi
+            Path: /tasks
+            Method: GET
+        CreateTask:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CloudTaskHttpApi
+            Path: /tasks
+            Method: POST
+        GetTask:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CloudTaskHttpApi
+            Path: /tasks/{taskId}
+            Method: GET
+        UpdateTask:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CloudTaskHttpApi
+            Path: /tasks/{taskId}
+            Method: PUT
+        DeleteTask:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CloudTaskHttpApi
+            Path: /tasks/{taskId}
+            Method: DELETE
+        GetUploadUrl:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CloudTaskHttpApi
+            Path: /tasks/{taskId}/upload-url
+            Method: POST
+        SaveAttachment:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref CloudTaskHttpApi
+            Path: /tasks/{taskId}/attachment
+            Method: POST
+
+Outputs:
+  HttpApiUrl:
+    Description: HTTP API Gateway endpoint base URL
+    Value: !Sub "https://${CloudTaskHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: CloudTaskHttpApiUrl
+
+  TasksTableName:
+    Description: DynamoDB Table Name for tasks
+    Value: !Ref TasksTable
+
+  AttachmentsBucketName:
+    Description: S3 Bucket Name for private attachments
+    Value: !Ref AttachmentsBucket
+
+  CloudTaskFunctionArn:
+    Description: ARN of the CloudTask Lambda function
+    Value: !GetAtt CloudTaskFunction.Arn
