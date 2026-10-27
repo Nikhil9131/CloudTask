@@ -49,7 +49,7 @@ export function DocumentsView({ tasks, onSelectTask }: DocumentsViewProps) {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Documents */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Total Documents
@@ -65,7 +65,7 @@ export function DocumentsView({ tasks, onSelectTask }: DocumentsViewProps) {
         </div>
 
         {/* Total Storage */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Total S3 Storage
@@ -81,7 +81,7 @@ export function DocumentsView({ tasks, onSelectTask }: DocumentsViewProps) {
         </div>
 
         {/* File Type Breakdown */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Format Distribution
@@ -98,7 +98,7 @@ export function DocumentsView({ tasks, onSelectTask }: DocumentsViewProps) {
       </div>
 
       {/* Filter and Document Table */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+      <div className="p-6 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
@@ -116,7 +116,7 @@ export function DocumentsView({ tasks, onSelectTask }: DocumentsViewProps) {
               placeholder="Search documents or tasks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-[#F2EFE3] dark:bg-[#231E17] border border-[#DCD6C0] dark:border-[#3D3528] text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#7E6637]/30"
             />
           </div>
         </div>

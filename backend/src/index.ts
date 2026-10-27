@@ -47,11 +47,14 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
 
   // Parse path parameters and path structure
   // Supported routes:
-  // /tasks
-  // /tasks/{taskId}
-  // /tasks/{taskId}/upload-url
-  // /tasks/{taskId}/attachment
+  // /tasks or /api/tasks
+  // /tasks/{taskId} or /api/tasks/{taskId}
+  // /tasks/{taskId}/upload-url or /api/tasks/{taskId}/upload-url
+  // /tasks/{taskId}/attachment or /api/tasks/{taskId}/attachment
   const pathParts = rawPath.replace(/^\/+|\/+$/g, '').split('/');
+  if (pathParts[0] === 'api') {
+    pathParts.shift();
+  }
 
   try {
     // Parse body if present

@@ -28,6 +28,8 @@ const INITIAL_DEMO_TASKS: TaskItem[] = [
     description: 'Ensure CloudTaskTasks table uses on-demand billing, with StatusCreatedAtIndex GSI for efficient queries.',
     priority: 'HIGH',
     status: 'COMPLETED',
+    assignee: 'Nikhil Rathore',
+    assigneeEmail: 'nikhil@cloudtask.io',
     createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
     updatedAt: new Date(Date.now() - 3600000 * 20).toISOString()
   },
@@ -37,15 +39,19 @@ const INITIAL_DEMO_TASKS: TaskItem[] = [
     description: 'Enforce PDF, PNG, and JPEG constraints with 5MB ceiling. Direct browser-to-S3 upload with validation.',
     priority: 'HIGH',
     status: 'COMPLETED',
+    assignee: 'Priya Patel',
+    assigneeEmail: 'priya@cloudtask.io',
     createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
     updatedAt: new Date(Date.now() - 3600000 * 6).toISOString()
   },
   {
     taskId: 'task_demo_003',
-    title: 'Review Cybernetics Software assessment submission checklist',
+    title: 'Review task management workspace submission checklist',
     description: 'Verify deployment instructions, tests, Mermaid architecture diagram, and security best practices in README.',
     priority: 'MEDIUM',
     status: 'IN_PROGRESS',
+    assignee: 'Aarav Sharma',
+    assigneeEmail: 'aarav@cloudtask.io',
     createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
     updatedAt: new Date(Date.now() - 3600000 * 2).toISOString()
   },
@@ -55,6 +61,8 @@ const INITIAL_DEMO_TASKS: TaskItem[] = [
     description: 'Connect repository to Amplify Hosting in ap-south-1 Mumbai, configure build settings, and verify public HTTPS URL.',
     priority: 'HIGH',
     status: 'TODO',
+    assignee: 'Rohan Mehta',
+    assigneeEmail: 'rohan@cloudtask.io',
     createdAt: new Date(Date.now() - 3600000).toISOString(),
     updatedAt: new Date(Date.now() - 3600000).toISOString()
   }
@@ -91,8 +99,9 @@ export const api = {
    * Fetch tasks with optional filters
    */
   async getTasks(params?: {
-    status?: TaskStatus;
-    priority?: TaskPriority;
+    status?: TaskStatus | 'ALL';
+    priority?: TaskPriority | 'ALL';
+    assignee?: string;
     search?: string;
     limit?: number;
     nextToken?: string;
@@ -100,16 +109,19 @@ export const api = {
     if (!isUsingLiveApi()) {
       let tasks = getLocalTasks();
 
-      if (params?.status) {
+      if (params?.status && params.status !== 'ALL') {
         tasks = tasks.filter((t) => t.status === params.status);
       }
-      if (params?.priority) {
+      if (params?.priority && params.priority !== 'ALL') {
         tasks = tasks.filter((t) => t.priority === params.priority);
+      }
+      if (params?.assignee && params.assignee !== 'ALL') {
+        tasks = tasks.filter((t) => t.assignee?.toLowerCase() === params.assignee?.toLowerCase());
       }
       if (params?.search && params.search.trim()) {
         const q = params.search.trim().toLowerCase();
         tasks = tasks.filter(
-          (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)
+          (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || (t.assignee && t.assignee.toLowerCase().includes(q))
         );
       }
 
@@ -118,8 +130,9 @@ export const api = {
     }
 
     const searchParams = new URLSearchParams();
-    if (params?.status) searchParams.set('status', params.status);
-    if (params?.priority) searchParams.set('priority', params.priority);
+    if (params?.status && params.status !== 'ALL') searchParams.set('status', params.status);
+    if (params?.priority && params.priority !== 'ALL') searchParams.set('priority', params.priority);
+    if (params?.assignee && params.assignee !== 'ALL') searchParams.set('assignee', params.assignee);
     if (params?.search) searchParams.set('search', params.search);
     if (params?.limit) searchParams.set('limit', String(params.limit));
     if (params?.nextToken) searchParams.set('nextToken', params.nextToken);
@@ -176,6 +189,8 @@ export const api = {
         description: input.description?.trim() || '',
         priority: input.priority || 'MEDIUM',
         status: input.status || 'TODO',
+        assignee: input.assignee || 'Nikhil Rathore',
+        assigneeEmail: input.assigneeEmail || 'nikhil@cloudtask.io',
         createdAt: now,
         updatedAt: now
       };

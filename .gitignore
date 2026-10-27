@@ -44,3 +44,6 @@ legacy_scratch/
 Thumbs.db
 [Ee]xpress/
 .DS_Store
+
+# Local persistence
+backend/data/

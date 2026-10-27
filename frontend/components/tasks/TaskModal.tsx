@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { TaskItem, TaskPriority, TaskStatus, CreateTaskInput, UpdateTaskInput } from '../../lib/types';
+import { TaskItem, TaskPriority, TaskStatus, CreateTaskInput, UpdateTaskInput, WORKSPACE_USERS } from '../../lib/types';
 import { formatBytes } from '../../lib/utils';
 import { useToast } from '../ui/ToastContext';
 
@@ -24,6 +24,7 @@ export function TaskModal({
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('MEDIUM');
   const [status, setStatus] = useState<TaskStatus>('TODO');
+  const [assignee, setAssignee] = useState<string>('Nikhil Rathore');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -38,11 +39,13 @@ export function TaskModal({
       setDescription(taskToEdit.description || '');
       setPriority(taskToEdit.priority);
       setStatus(taskToEdit.status);
+      setAssignee(taskToEdit.assignee || 'Nikhil Rathore');
     } else {
       setTitle('');
       setDescription('');
       setPriority('MEDIUM');
       setStatus('TODO');
+      setAssignee('Nikhil Rathore');
     }
     setSelectedFile(null);
     setUploadProgress(0);
@@ -89,8 +92,8 @@ export function TaskModal({
       return;
     }
 
-    setIsSubmitting(true);
-    setErrorMsg('');
+    const matchedUser = WORKSPACE_USERS.find((u) => u.name === assignee);
+    const assigneeEmail = matchedUser ? matchedUser.email : 'nikhil@cloudtask.io';
 
     try {
       await onSubmit(
@@ -98,7 +101,9 @@ export function TaskModal({
           title: title.trim(),
           description: description.trim(),
           priority,
-          status
+          status,
+          assignee,
+          assigneeEmail
         },
         selectedFile
       );
@@ -112,13 +117,13 @@ export function TaskModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
       <div
-        className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-lg bg-[#FAF8F2] dark:bg-[#1C1813] rounded-2xl shadow-2xl border border-[#DCD6C0] dark:border-[#332C23] overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#DCD6C0] dark:border-[#332C23]">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
               {taskToEdit ? 'Edit Task' : 'Create New Task'}
@@ -129,7 +134,7 @@ export function TaskModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-[#F2EFE3] dark:hover:bg-[#251F18] transition"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -162,7 +167,7 @@ export function TaskModal({
               placeholder="e.g. Set up DynamoDB Table and GSI indexes"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full px-3 py-2 text-xs rounded-xl bg-[#F2EFE3] dark:bg-[#231E17] border border-[#DCD6C0] dark:border-[#3D3528] text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#7E6637]/30 focus:border-[#7E6637]"
             />
           </div>
 
@@ -182,8 +187,27 @@ export function TaskModal({
               placeholder="Provide context, acceptance criteria, or execution notes..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"
+              className="w-full px-3 py-2 text-xs rounded-xl bg-[#F2EFE3] dark:bg-[#231E17] border border-[#DCD6C0] dark:border-[#3D3528] text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#7E6637]/30 focus:border-[#7E6637] resize-none"
             />
+          </div>
+
+          {/* Multi-User Assignee Selection */}
+          <div className="space-y-1">
+            <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+              <span>Assigned Team Member</span>
+              <span className="text-[10px] text-[#7E6637] dark:text-[#C7BC9F] font-normal">Multi-User Collaboration</span>
+            </label>
+            <select
+              value={assignee}
+              onChange={(e) => setAssignee(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-[#F2EFE3] dark:bg-[#231E17] border border-[#DCD6C0] dark:border-[#3D3528] text-slate-800 dark:text-slate-200 focus:outline-none font-medium text-xs"
+            >
+              {WORKSPACE_USERS.map((user) => (
+                <option key={user.id} value={user.name}>
+                  {user.name} — {user.role} ({user.email})
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Priority & Status Controls */}
@@ -196,7 +220,7 @@ export function TaskModal({
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none font-medium"
+                className="w-full px-3 py-2 rounded-xl bg-[#F2EFE3] dark:bg-[#231E17] border border-[#DCD6C0] dark:border-[#3D3528] text-slate-800 dark:text-slate-200 focus:outline-none font-medium"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -212,17 +236,17 @@ export function TaskModal({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none font-medium"
+                className="w-full px-3 py-2 rounded-xl bg-[#F2EFE3] dark:bg-[#231E17] border border-[#DCD6C0] dark:border-[#3D3528] text-slate-800 dark:text-slate-200 focus:outline-none font-medium"
               >
                 <option value="TODO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>
+                <option value="IN_PROGRESS">In Progress (Ongoing)</option>
                 <option value="COMPLETED">Completed</option>
               </select>
             </div>
           </div>
 
           {/* Document Upload Zone */}
-          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="space-y-2 pt-2 border-t border-[#DCD6C0] dark:border-[#332C23]">
             <div className="flex items-center justify-between">
               <label className="font-semibold text-slate-700 dark:text-slate-300">
                 Document Attachment (Private S3)
@@ -232,9 +256,9 @@ export function TaskModal({
 
             {/* Existing attachment indicator when editing */}
             {taskToEdit?.attachment && !selectedFile && (
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[#F2EFE3] dark:bg-[#231E17] border border-[#DCD6C0] dark:border-[#3D3528] flex items-center justify-between">
                 <div className="flex items-center gap-2 truncate">
-                  <FileText className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                  <FileText className="w-4 h-4 text-[#7E6637] flex-shrink-0" />
                   <div className="truncate">
                     <p className="font-medium text-slate-800 dark:text-slate-200 truncate">
                       {taskToEdit.attachment.name}
@@ -247,7 +271,7 @@ export function TaskModal({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex-shrink-0"
+                  className="text-xs text-[#7E6637] dark:text-[#C7BC9F] font-semibold hover:underline flex-shrink-0"
                 >
                   Replace
                 </button>
@@ -256,14 +280,14 @@ export function TaskModal({
 
             {/* Newly selected file indicator */}
             {selectedFile ? (
-              <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[#EEEBDA] dark:bg-[#2A241B] border border-[#DCD6C0] dark:border-[#3D3528] flex items-center justify-between">
                 <div className="flex items-center gap-2 truncate">
-                  <FileText className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                  <FileText className="w-4 h-4 text-[#7E6637] flex-shrink-0" />
                   <div className="truncate">
                     <p className="font-medium text-slate-900 dark:text-white truncate">
                       {selectedFile.name}
                     </p>
-                    <p className="text-[10px] text-indigo-600 dark:text-indigo-400">
+                    <p className="text-[10px] text-[#7E6637] dark:text-[#C7BC9F]">
                       {formatBytes(selectedFile.size)} • Ready to upload via presigned URL
                     </p>
                   </div>
@@ -283,7 +307,7 @@ export function TaskModal({
               /* Dropzone button */
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50/50 dark:bg-slate-950/50 hover:bg-indigo-50/20"
+                className="border-2 border-dashed border-[#DCD6C0] dark:border-[#3D3528] hover:border-[#BDB18F] rounded-xl p-4 text-center cursor-pointer transition bg-[#F2EFE3]/50 dark:bg-[#231E17]/50 hover:bg-[#EEEBDA]/40"
               >
                 <UploadCloud className="w-6 h-6 text-slate-400 mx-auto mb-1" />
                 <p className="font-medium text-slate-700 dark:text-slate-300">
@@ -305,19 +329,19 @@ export function TaskModal({
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
+          <div className="pt-4 border-t border-[#DCD6C0] dark:border-[#332C23] flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-[#F2EFE3] dark:hover:bg-[#251F18] transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-sm shadow-indigo-600/30 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-[#EEEBDA] bg-[#241E17] hover:bg-[#383025] active:bg-[#18140F] shadow-sm shadow-[#241E17]/20 transition disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

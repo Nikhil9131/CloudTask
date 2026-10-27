@@ -27,6 +27,9 @@ import {
 } from './types';
 import { sanitizeFilename, ValidationError } from './validator';
 
+import fs from 'fs';
+import path from 'path';
+
 export class NotFoundError extends Error {
   statusCode: number;
   constructor(message: string) {
@@ -36,8 +39,90 @@ export class NotFoundError extends Error {
   }
 }
 
-// In-memory fallback map for offline local testing
-const localStore = new Map<string, TaskItem>();
+const PERSISTENT_FILE = path.resolve(__dirname, '../data/local-tasks.json');
+
+function loadLocalTasksFromDisk(): Map<string, TaskItem> {
+  const map = new Map<string, TaskItem>();
+  try {
+    if (fs.existsSync(PERSISTENT_FILE)) {
+      const data = fs.readFileSync(PERSISTENT_FILE, 'utf-8');
+      const parsed: TaskItem[] = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        parsed.forEach((t) => map.set(t.taskId, t));
+      }
+    }
+  } catch (err) {
+    console.warn('Could not read local-tasks.json:', err);
+  }
+  return map;
+}
+
+function saveLocalTasksToDisk(map: Map<string, TaskItem>) {
+  try {
+    const dir = path.dirname(PERSISTENT_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(PERSISTENT_FILE, JSON.stringify(Array.from(map.values()), null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('Could not save local-tasks.json:', err);
+  }
+}
+
+// In-memory fallback map for offline local testing with disk persistence
+const localStore = loadLocalTasksFromDisk();
+
+const DEFAULT_INITIAL_TASKS: TaskItem[] = [
+  {
+    taskId: 'task_demo_001',
+    title: 'Configure AWS SAM template and DynamoDB table',
+    description: 'Ensure CloudTaskTasks table uses on-demand billing, with StatusCreatedAtIndex GSI for efficient queries.',
+    priority: 'HIGH',
+    status: 'COMPLETED',
+    assignee: 'Nikhil Rathore',
+    assigneeEmail: 'nikhil@cloudtask.io',
+    createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 20).toISOString()
+  },
+  {
+    taskId: 'task_demo_002',
+    title: 'Implement private S3 bucket and presigned upload flow',
+    description: 'Enforce PDF, PNG, and JPEG constraints with 5MB ceiling. Direct browser-to-S3 upload with validation.',
+    priority: 'HIGH',
+    status: 'COMPLETED',
+    assignee: 'Priya Patel',
+    assigneeEmail: 'priya@cloudtask.io',
+    createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 6).toISOString()
+  },
+  {
+    taskId: 'task_demo_003',
+    title: 'Review task management workspace submission checklist',
+    description: 'Verify deployment instructions, tests, Mermaid architecture diagram, and security best practices in README.',
+    priority: 'MEDIUM',
+    status: 'IN_PROGRESS',
+    assignee: 'Aarav Sharma',
+    assigneeEmail: 'aarav@cloudtask.io',
+    createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 2).toISOString()
+  },
+  {
+    taskId: 'task_demo_004',
+    title: 'Deploy to AWS Amplify Hosting via GitHub',
+    description: 'Connect repository to Amplify Hosting in ap-south-1 Mumbai, configure build settings, and verify public HTTPS URL.',
+    priority: 'HIGH',
+    status: 'TODO',
+    assignee: 'Rohan Mehta',
+    assigneeEmail: 'rohan@cloudtask.io',
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000).toISOString()
+  }
+];
+
+if (localStore.size === 0) {
+  DEFAULT_INITIAL_TASKS.forEach((t) => localStore.set(t.taskId, t));
+  saveLocalTasksToDisk(localStore);
+}
 
 export class TaskService {
   private isLocalMode(): boolean {
@@ -57,12 +142,15 @@ export class TaskService {
       description: input.description || '',
       priority: input.priority || 'MEDIUM',
       status: input.status || 'TODO',
+      assignee: input.assignee || 'Nikhil Rathore',
+      assigneeEmail: input.assigneeEmail || 'nikhil@cloudtask.io',
       createdAt: now,
       updatedAt: now
     };
 
     if (this.isLocalMode()) {
       localStore.set(taskId, { ...task });
+      saveLocalTasksToDisk(localStore);
       return task;
     }
 
@@ -129,10 +217,13 @@ export class TaskService {
       if (query.priority) {
         items = items.filter((t) => t.priority === query.priority);
       }
+      if (query.assignee) {
+        items = items.filter((t) => t.assignee?.toLowerCase() === query.assignee?.toLowerCase());
+      }
       if (query.search && query.search.trim()) {
         const q = query.search.trim().toLowerCase();
         items = items.filter(
-          (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)
+          (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || (t.assignee && t.assignee.toLowerCase().includes(q))
         );
       }
 
@@ -173,6 +264,12 @@ export class TaskService {
         filterConditions.push('#priority = :priority');
       }
 
+      if (query.assignee) {
+        expressionAttributeNames['#assignee'] = 'assignee';
+        expressionAttributeValues[':assignee'] = query.assignee;
+        filterConditions.push('#assignee = :assignee');
+      }
+
       if (query.search && query.search.trim()) {
         expressionAttributeNames['#title'] = 'title';
         expressionAttributeValues[':search'] = query.search.trim();
@@ -206,6 +303,12 @@ export class TaskService {
         expressionAttributeNames['#priority'] = 'priority';
         expressionAttributeValues[':priority'] = query.priority;
         filterConditions.push('#priority = :priority');
+      }
+
+      if (query.assignee) {
+        expressionAttributeNames['#assignee'] = 'assignee';
+        expressionAttributeValues[':assignee'] = query.assignee;
+        filterConditions.push('#assignee = :assignee');
       }
 
       if (query.search && query.search.trim()) {
@@ -256,7 +359,7 @@ export class TaskService {
   }
 
   /**
-   * Update task fields (title, description, priority, status)
+   * Update task fields (title, description, priority, status, assignee)
    */
   async updateTask(taskId: string, input: UpdateTaskInput): Promise<TaskItem> {
     const existing = await this.getTask(taskId);
@@ -268,6 +371,7 @@ export class TaskService {
         updatedAt: new Date().toISOString()
       };
       localStore.set(taskId, updated);
+      saveLocalTasksToDisk(localStore);
       return updated;
     }
 
@@ -305,6 +409,18 @@ export class TaskService {
       updateParts.push('#status = :status');
     }
 
+    if (input.assignee !== undefined) {
+      expressionAttributeNames['#assignee'] = 'assignee';
+      expressionAttributeValues[':assignee'] = input.assignee;
+      updateParts.push('#assignee = :assignee');
+    }
+
+    if (input.assigneeEmail !== undefined) {
+      expressionAttributeNames['#assigneeEmail'] = 'assigneeEmail';
+      expressionAttributeValues[':assigneeEmail'] = input.assigneeEmail;
+      updateParts.push('#assigneeEmail = :assigneeEmail');
+    }
+
     const updateParams = {
       TableName: TASKS_TABLE,
       Key: { taskId },
@@ -326,6 +442,7 @@ export class TaskService {
 
     if (this.isLocalMode()) {
       localStore.delete(taskId);
+      saveLocalTasksToDisk(localStore);
       return { deleted: true, taskId };
     }
 
@@ -398,6 +515,7 @@ export class TaskService {
       existing.attachment = attachment;
       existing.updatedAt = new Date().toISOString();
       localStore.set(taskId, existing);
+      saveLocalTasksToDisk(localStore);
       return { ...existing };
     }
 

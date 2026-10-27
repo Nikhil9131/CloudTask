@@ -11,7 +11,7 @@ import {
   FileText,
   ArrowRight
 } from 'lucide-react';
-import { TaskItem, TaskPriority } from '../../lib/types';
+import { TaskItem, TaskPriority, WORKSPACE_USERS } from '../../lib/types';
 import { formatRelativeTime } from '../../lib/utils';
 
 interface StatCardsProps {
@@ -54,7 +54,7 @@ export function StatCards({
       {/* 4 Core Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Tasks */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Total Tasks
@@ -72,7 +72,7 @@ export function StatCards({
         </div>
 
         {/* To Do (Pending) */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
               Pending (To Do)
@@ -91,13 +91,14 @@ export function StatCards({
           </div>
         </div>
 
-        {/* In Progress */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        {/* In Progress (Ongoing) */}
+        <div className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 uppercase tracking-wider">
-              In Progress
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span>Ongoing (In Progress)</span>
+              {inProgressCount > 0 && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />}
             </span>
-            <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/60 flex items-center justify-center text-sky-600 dark:text-sky-400">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400">
               <PlayCircle className="w-5 h-5" />
             </div>
           </div>
@@ -105,14 +106,14 @@ export function StatCards({
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {inProgressCount}
             </span>
-            <span className="text-xs text-sky-600 dark:text-sky-400 font-medium">
-              {total > 0 ? `${Math.round((inProgressCount / total) * 100)}% active` : '0%'}
+            <span className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+              {total > 0 ? `${Math.round((inProgressCount / total) * 100)}% ongoing` : '0%'}
             </span>
           </div>
         </div>
 
         {/* Completed */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
               Completed
@@ -135,7 +136,7 @@ export function StatCards({
       {/* Row 2: Analytics Breakdown + Priority Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Completion Progress Gauge */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div className="p-6 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-slate-900 dark:text-white text-base">
@@ -178,7 +179,7 @@ export function StatCards({
         </div>
 
         {/* Priority Distribution */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between lg:col-span-2">
+        <div className="p-6 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm flex flex-col justify-between lg:col-span-2">
           <div>
             <div className="flex items-center justify-between mb-1">
               <h3 className="font-bold text-slate-900 dark:text-white text-base">
@@ -257,7 +258,7 @@ export function StatCards({
       </div>
 
       {/* Row 3: Recent Tasks Table */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="p-6 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-bold text-slate-900 dark:text-white text-base">
@@ -290,13 +291,20 @@ export function StatCards({
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
                       task.status === 'COMPLETED'
                         ? 'bg-emerald-500'
                         : task.status === 'IN_PROGRESS'
-                        ? 'bg-sky-500'
-                        : 'bg-amber-500'
+                        ? 'bg-amber-500 animate-pulse'
+                        : 'bg-[#9B927E]'
                     }`}
+                    title={
+                      task.status === 'COMPLETED'
+                        ? 'Completed'
+                        : task.status === 'IN_PROGRESS'
+                        ? 'In Progress (Ongoing)'
+                        : 'To Do'
+                    }
                   />
                   <div className="truncate">
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
@@ -309,9 +317,26 @@ export function StatCards({
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
+                  {/* Assignee Avatar */}
+                  {(() => {
+                    const user = WORKSPACE_USERS.find((u) => u.name === task.assignee) || {
+                      name: task.assignee || 'Unassigned',
+                      initials: (task.assignee || 'UN').split(' ').map((p) => p[0]).join('').substring(0, 2).toUpperCase(),
+                      color: 'bg-[#7E6637] text-white'
+                    };
+                    return (
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[9px] shadow-xs ${user.color}`}
+                        title={`Assigned to ${user.name}`}
+                      >
+                        {user.initials}
+                      </div>
+                    );
+                  })()}
+
                   {task.attachment && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                      <FileText className="w-3 h-3 text-indigo-500" />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#F2EFE3] dark:bg-[#251F18] text-[#5C5343] dark:text-[#C7BC9F] border border-[#DCD6C0] dark:border-[#3D3528]">
+                      <FileText className="w-3 h-3 text-[#7E6637]" />
                       Attachment
                     </span>
                   )}

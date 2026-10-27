@@ -1,10 +1,8 @@
 # CloudTask - Serverless Task & Document Management Platform
 
-> **Candidate Assessment Submission**  
-> **Role**: Junior Software Developer  
-> **Company**: Cybernetics Software Pvt. Ltd.  
-> **Evaluation Deadline**: 28 October 2026, 12:00 noon IST  
+> **Serverless Cloud Application Submission**  
 > **Target Region**: `ap-south-1` (Mumbai)  
+> **Architecture**: 100% Serverless (Zero EC2, DynamoDB, Lambda, S3)  
 
 ---
 

@@ -62,7 +62,10 @@ export function validateCreateTaskInput(input: any): CreateTaskInput {
     status = normStatus;
   }
 
-  return { title, description, priority, status };
+  let assignee = typeof input.assignee === 'string' ? input.assignee.trim().substring(0, 100) : '';
+  let assigneeEmail = typeof input.assigneeEmail === 'string' ? input.assigneeEmail.trim().substring(0, 150) : '';
+
+  return { title, description, priority, status, assignee, assigneeEmail };
 }
 
 export function validateUpdateTaskInput(input: any): UpdateTaskInput {
@@ -121,8 +124,18 @@ export function validateUpdateTaskInput(input: any): UpdateTaskInput {
     hasField = true;
   }
 
+  if (input.assignee !== undefined) {
+    updates.assignee = typeof input.assignee === 'string' ? input.assignee.trim().substring(0, 100) : '';
+    hasField = true;
+  }
+
+  if (input.assigneeEmail !== undefined) {
+    updates.assigneeEmail = typeof input.assigneeEmail === 'string' ? input.assigneeEmail.trim().substring(0, 150) : '';
+    hasField = true;
+  }
+
   if (!hasField) {
-    throw new ValidationError('At least one field (title, description, priority, status) must be provided for update.');
+    throw new ValidationError('At least one field (title, description, priority, status, assignee) must be provided for update.');
   }
 
   return updates;

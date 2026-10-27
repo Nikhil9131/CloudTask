@@ -16,6 +16,8 @@ export interface TaskItem {
   description: string;
   priority: TaskPriority;
   status: TaskStatus;
+  assignee?: string;
+  assigneeEmail?: string;
   createdAt: string;
   updatedAt: string;
   attachment?: TaskAttachment;
@@ -26,6 +28,8 @@ export interface CreateTaskInput {
   description?: string;
   priority?: TaskPriority;
   status?: TaskStatus;
+  assignee?: string;
+  assigneeEmail?: string;
 }
 
 export interface UpdateTaskInput {
@@ -33,11 +37,14 @@ export interface UpdateTaskInput {
   description?: string;
   priority?: TaskPriority;
   status?: TaskStatus;
+  assignee?: string;
+  assigneeEmail?: string;
 }
 
 export interface ListTasksQuery {
   status?: TaskStatus;
   priority?: TaskPriority;
+  assignee?: string;
   search?: string;
   limit?: number;
   nextToken?: string;

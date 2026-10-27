@@ -2,7 +2,7 @@
 
 ## 1. System Overview
 
-CloudTask is a cloud-native, serverless task and document management web application engineered for the Junior Software Developer assessment at **Cybernetics Software Pvt. Ltd.** The system is designed around modern serverless patterns, strict security standards, least-privilege IAM permissions, and responsive user experience.
+CloudTask is a cloud-native, serverless task and document management web application. The system is designed around modern serverless patterns, strict security standards, least-privilege IAM permissions, and responsive user experience.
 
 ### Key Architectural Tenets
 - **100% Serverless & Ephemeral**: Zero EC2 instances or persistent VMs. Idle cost is zero.

@@ -3,25 +3,37 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #EEEBDA;
+  --foreground: #231E17;
+  --vanilla-base: #EEEBDA;
+  --vanilla-card: #FAF8F2;
+  --vanilla-border: #DCD6C0;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #020617;
-    --foreground: #f8fafc;
+    --background: #18140F;
+    --foreground: #EEEBDA;
+    --vanilla-base: #18140F;
+    --vanilla-card: #231E17;
+    --vanilla-border: #3D3528;
   }
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  background-color: #EEEBDA;
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom sleek scrollbar */
+::selection {
+  background: #DCD6C0;
+  color: #231E17;
+}
+
+/* Custom sleek vanilla scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -32,10 +44,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(189, 177, 143, 0.5);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.7);
+  background: rgba(145, 132, 98, 0.85);
 }
+

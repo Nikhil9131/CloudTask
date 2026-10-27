@@ -45,16 +45,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={toast.id}
             className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border text-sm transition-all duration-300 animate-in slide-in-from-bottom-3 ${
               toast.type === 'success'
-                ? 'bg-white dark:bg-slate-900 border-emerald-200 dark:border-emerald-800 text-slate-800 dark:text-slate-100'
+                ? 'bg-[#FAF8F2] dark:bg-[#1C1813] border-emerald-300 dark:border-emerald-800 text-slate-800 dark:text-slate-100'
                 : toast.type === 'error'
-                ? 'bg-white dark:bg-slate-900 border-rose-200 dark:border-rose-800 text-slate-800 dark:text-slate-100'
-                : 'bg-white dark:bg-slate-900 border-indigo-200 dark:border-indigo-800 text-slate-800 dark:text-slate-100'
+                ? 'bg-[#FAF8F2] dark:bg-[#1C1813] border-rose-300 dark:border-rose-800 text-slate-800 dark:text-slate-100'
+                : 'bg-[#FAF8F2] dark:bg-[#1C1813] border-[#DCD6C0] dark:border-[#3D3528] text-slate-800 dark:text-slate-100'
             }`}
           >
             <div className="flex-shrink-0 mt-0.5">
-              {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
-              {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-500" />}
-              {toast.type === 'info' && <Info className="w-5 h-5 text-indigo-500" />}
+              {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+              {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-600" />}
+              {toast.type === 'info' && <Info className="w-5 h-5 text-[#7E6637]" />}
             </div>
             <div className="flex-1 font-medium">{toast.message}</div>
             <button

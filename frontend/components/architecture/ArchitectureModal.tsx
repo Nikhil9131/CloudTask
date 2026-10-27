@@ -64,7 +64,7 @@ export function ArchitectureModal() {
   return (
     <div className="space-y-6">
       {/* Overview Card */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+      <div className="p-6 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm space-y-3">
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600">
             <Layers className="w-5 h-5" />
@@ -74,7 +74,7 @@ export function ArchitectureModal() {
               CloudTask AWS Serverless Architecture
             </h2>
             <p className="text-xs text-slate-500">
-              Designed for Cybernetics Software Assessment • Target Region: ap-south-1 (Mumbai)
+              Multi-User Serverless Workspace • Target Region: ap-south-1 (Mumbai)
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@ export function ArchitectureModal() {
             End-to-End Request Pipeline
           </span>
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-            <span className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 shadow-sm">
+            <span className="px-3 py-1.5 rounded-lg bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] text-slate-800 dark:text-slate-200 shadow-sm">
               Browser / Amplify
             </span>
             <ArrowRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
@@ -128,7 +128,7 @@ export function ArchitectureModal() {
           return (
             <div
               key={c.title}
-              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2 flex flex-col justify-between"
+              className="p-5 rounded-2xl bg-[#FAF8F2] dark:bg-[#1C1813] border border-[#DCD6C0] dark:border-[#332C23] shadow-sm space-y-2 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center gap-2.5 mb-2">

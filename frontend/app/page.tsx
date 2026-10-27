@@ -68,8 +68,12 @@ export default function CloudTaskApp() {
         prev.map((t) => (t.taskId === taskId ? { ...t, status: newStatus } : t))
       );
 
+      // Also update taskToView if open in modal
+      setTaskToView((prev) => (prev && prev.taskId === taskId ? { ...prev, status: newStatus } : prev));
+
       await api.updateTask(taskId, { status: newStatus });
-      showToast(`Task status updated to ${newStatus.replace('_', ' ')}.`, 'success');
+      const statusLabel = newStatus === 'IN_PROGRESS' ? 'In Progress (Ongoing)' : newStatus === 'COMPLETED' ? 'Completed' : 'To Do';
+      showToast(`Task status updated to ${statusLabel}.`, 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to update status.', 'error');
       loadTasks(); // rollback on error
@@ -146,8 +150,8 @@ export default function CloudTaskApp() {
       subtitle: 'Tasks queued for development and assessment'
     },
     in_progress: {
-      title: 'Active Tasks',
-      subtitle: 'Deliverables currently in progress'
+      title: 'Ongoing & Active Tasks',
+      subtitle: 'Deliverables currently in progress and ongoing execution'
     },
     completed: {
       title: 'Completed Deliverables',
@@ -164,7 +168,7 @@ export default function CloudTaskApp() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-screen overflow-hidden bg-[#EEEBDA] dark:bg-[#18140F]">
       {/* Desktop & Tablet Sidebar */}
       <div className="hidden md:flex flex-shrink-0">
         <Sidebar
@@ -181,11 +185,11 @@ export default function CloudTaskApp() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm md:hidden animate-in fade-in"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden animate-in fade-in"
           onClick={() => setMobileMenuOpen(false)}
         >
           <div
-            className="w-64 h-full bg-white dark:bg-slate-950 shadow-xl"
+            className="w-64 h-full bg-[#FAF8F2] dark:bg-[#231E17] shadow-xl border-r border-[#DCD6C0] dark:border-[#3D3528]"
             onClick={(e) => e.stopPropagation()}
           >
             <Sidebar
@@ -203,7 +207,7 @@ export default function CloudTaskApp() {
       )}
 
       {/* Main Workspace Layout */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#EEEBDA] dark:bg-[#18140F]">
         {/* Top Header */}
         <Header
           title={tabTitles[activeTab].title}
@@ -220,7 +224,7 @@ export default function CloudTaskApp() {
         />
 
         {/* Scrollable Page Body */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-[#EEEBDA] dark:bg-[#18140F]">
           {/* Dashboard View */}
           {activeTab === 'dashboard' && (
             <StatCards
@@ -234,6 +238,7 @@ export default function CloudTaskApp() {
           {/* All Tasks View */}
           {activeTab === 'all' && (
             <TaskList
+              key="all"
               tasks={tasks}
               isLoading={isLoading}
               onSelectTask={(task) => setTaskToView(task)}
@@ -254,6 +259,7 @@ export default function CloudTaskApp() {
           {/* To Do (Pending) Tab */}
           {activeTab === 'todo' && (
             <TaskList
+              key="todo"
               tasks={tasks}
               isLoading={isLoading}
               onSelectTask={(task) => setTaskToView(task)}
@@ -271,9 +277,10 @@ export default function CloudTaskApp() {
             />
           )}
 
-          {/* In Progress Tab */}
+          {/* In Progress (Ongoing) Tab */}
           {activeTab === 'in_progress' && (
             <TaskList
+              key="in_progress"
               tasks={tasks}
               isLoading={isLoading}
               onSelectTask={(task) => setTaskToView(task)}
@@ -294,6 +301,7 @@ export default function CloudTaskApp() {
           {/* Completed Tab */}
           {activeTab === 'completed' && (
             <TaskList
+              key="completed"
               tasks={tasks}
               isLoading={isLoading}
               onSelectTask={(task) => setTaskToView(task)}
