@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.amazonaws.com'
-      }
-    ]
+    unoptimized: true
   }
 };
 
